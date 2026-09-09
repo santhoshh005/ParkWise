@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ParkingZone {
+  id          String                @id
+  name        String
+  area        String
+  latitude    Float
+  longitude   Float
+  totalSpaces Int
+  hourlyPrice Float
+  history     HistoricalOccupancy[]
+}
+
+model HistoricalOccupancy {
+  id               String      @id @default(cuid())
+  parkingZoneId    String
+  recordedAt       DateTime
+  occupancyPercent Float
+  weather          String
+  hasEvent         Boolean
+  parkingZone      ParkingZone @relation(fields: [parkingZoneId], references: [id], onDelete: Cascade)
+
+  @@index([parkingZoneId, recordedAt])
+}
