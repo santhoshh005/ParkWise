@@ -10,6 +10,14 @@ ParkWise is a full-stack web application that predicts parking spot availability
 - **Smart Ranking Engine**: Automatically suggests the best parking spot using a weighted scoring algorithm (55% availability, 30% distance, 15% price).
 - **Interactive Map**: Real-time visual layout using Leaflet and OpenStreetMap, with color-coded markers scaled by parking lot capacity.
 - **Explainable AI**: Provides plain-English explanations for why a spot was recommended, along with model telemetry (MAE, R²).
+- **Dynamic Pricing (Stretch Feature)**: Suggests dynamic surge or discount pricing based on predicted availability limits.
+
+## Assessment Criteria Checklist
+- [x] **Historical/Simulated Data**: Uses 84 days of simulated hourly data across 8 zones to train the model.
+- [x] **Prediction Model**: Features include time, day, weather, and events.
+- [x] **Map-Based UI**: Interactive Leaflet map with dynamic green/yellow/red availability indicators.
+- [x] **Stretch Goal**: Dynamic pricing suggestion implemented in the recommendation engine.
+- [x] **Tests Addressed**: Data handling (SQLite+Prisma), ML (Random Forest), UI (React+Tailwind).
 
 ## Tech Stack
 
