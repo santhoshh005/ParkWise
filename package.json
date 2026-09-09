@@ -10,8 +10,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "train:model": "python ml/train_model.py",
-    "test:bridge": "tsx server/src/scripts/testPythonBridge.ts"
+    "train:model": "python ml/train_model.py"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
