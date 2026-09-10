@@ -5,3 +5,5 @@ dist
 *.db-journal
 ml/*.joblib
 *.tsbuildinfo
+__pycache__/
+*.pdf

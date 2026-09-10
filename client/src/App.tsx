@@ -42,7 +42,7 @@ export default function App() {
       {/* ── Header ── */}
       <header>
         <p className="text-sm font-semibold tracking-[0.2em] text-emerald-600">
-          PARKWISE AI
+          PARKWISE
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Predict. Compare. Park.
@@ -96,6 +96,8 @@ export default function App() {
             <RecommendedSpot
               zone={result.recommended}
               explanation={result.explanation}
+              isSelected={selectedZoneId === result.recommended.id}
+              onSelect={() => handleSelectZone(result.recommended)}
             />
             <ParkingMap
               zones={result.zones}

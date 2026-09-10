@@ -24,9 +24,9 @@ export default function ZoneCard({ zone, rank, selected, onSelect }: Props) {
     <button
       type="button"
       onClick={() => onSelect(zone)}
-      className={`w-full rounded-xl border bg-white p-4 text-left shadow-sm transition-all hover:shadow-md ${
+      className={`w-full rounded-xl border-2 bg-white p-4 text-left shadow-sm transition-all hover:shadow-md ${
         selected
-          ? "border-emerald-300 ring-2 ring-emerald-200"
+          ? "border-emerald-500"
           : "border-slate-200"
       }`}
     >

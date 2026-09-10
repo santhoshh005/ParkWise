@@ -23,8 +23,8 @@ export default function RecommendedSpot({ zone, explanation, isSelected, onSelec
   return (
     <div 
       onClick={onSelect}
-      className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 bg-white p-6 shadow-md transition-all hover:border-emerald-400 ${
-        isSelected ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-2" : "border-emerald-200"
+      className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 bg-white p-6 shadow-sm transition-all hover:shadow-md ${
+        isSelected ? "border-emerald-500" : "border-slate-200"
       }`}
     >
       {/* Badge */}

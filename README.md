@@ -1,4 +1,4 @@
-# ParkWise AI
+# ParkWise
 
 > Predict. Compare. Park. Smart parking availability predictions for Koramangala, before you arrive.
 
@@ -18,6 +18,23 @@ ParkWise is a full-stack web application that predicts parking spot availability
 - [x] **Map-Based UI**: Interactive Leaflet map with dynamic green/yellow/red availability indicators.
 - [x] **Stretch Goal**: Dynamic pricing suggestion implemented in the recommendation engine.
 - [x] **Tests Addressed**: Data handling (SQLite+Prisma), ML (Random Forest), UI (React+Tailwind).
+
+## Understanding the Dashboard
+
+When you receive a prediction, the dashboard presents a **"Best Match"** card alongside an interactive map. 
+
+### The Recommendation Stats
+Each parking spot displays three key statistics that our recommendation engine uses to rank them:
+1. **Predicted Free Spaces (e.g., `~117 of 220 free`)**: The model predicts the percentage of availability. We multiply this by the lot's total physical capacity to estimate exactly how many empty parking spots remain.
+2. **Distance (e.g., `0 km from centre`)**: The system calculates the geographic distance from the parking spot to the destination. *(Note: For this project, the destination is hardcoded to the centre of Koramangala).*
+3. **Suggested Price (e.g., `₹50 per hour`)**: This demonstrates our **Dynamic Pricing** feature. If a lot is critically full, surge pricing is applied. If a lot is highly empty, discount pricing is applied to attract drivers.
+
+### The Map Markers
+The interactive Leaflet map uses color-coded markers to give a quick visual overview of the area:
+- **Green**: High availability (>55%).
+- **Yellow / Amber**: Medium availability (40% - 55%).
+- **Red**: Low availability (<40%).
+- **Thick Black Border**: Indicates the currently selected parking spot.
 
 ## Tech Stack
 
