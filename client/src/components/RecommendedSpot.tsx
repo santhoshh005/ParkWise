@@ -15,11 +15,18 @@ const STATUS_BAR_COLORS = {
 interface Props {
   zone: ZoneResult;
   explanation: string;
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
-export default function RecommendedSpot({ zone, explanation }: Props) {
+export default function RecommendedSpot({ zone, explanation, isSelected, onSelect }: Props) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-200 bg-white p-6 shadow-md">
+    <div 
+      onClick={onSelect}
+      className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 bg-white p-6 shadow-md transition-all hover:border-emerald-400 ${
+        isSelected ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-2" : "border-emerald-200"
+      }`}
+    >
       {/* Badge */}
       <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
         🏆 Best Match
@@ -48,24 +55,27 @@ export default function RecommendedSpot({ zone, explanation }: Props) {
       {/* Stats grid */}
       <div className="mt-4 grid grid-cols-3 gap-3 text-center">
         <div className="rounded-lg bg-slate-50 px-2 py-2.5">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Predicted Free</p>
           <p className="text-lg font-bold text-slate-900">
             ~{zone.estimatedFreeSpaces}
           </p>
           <p className="text-xs text-slate-500">
-            of {zone.totalSpaces} free
+            of {zone.totalSpaces} spots
           </p>
         </div>
         <div className="rounded-lg bg-slate-50 px-2 py-2.5">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Distance</p>
           <p className="text-lg font-bold text-slate-900">
             {zone.distanceKm} km
           </p>
-          <p className="text-xs text-slate-500">from centre</p>
+          <p className="text-xs text-slate-500">from Koramangala centre</p>
         </div>
-        <div className="rounded-lg bg-slate-50 px-2 py-2.5">
-          <p className="text-lg font-bold text-slate-900">
+        <div className="rounded-lg bg-emerald-50 px-2 py-2.5">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600">Dynamic Price</p>
+          <p className="text-lg font-bold text-emerald-900">
             ₹{zone.suggestedHourlyPrice}
           </p>
-          <p className="text-xs text-slate-500">per hour</p>
+          <p className="text-xs text-emerald-700">per hour</p>
         </div>
       </div>
 
