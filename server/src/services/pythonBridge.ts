@@ -1,12 +1,27 @@
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(directory, "../../..");
-const PYTHON_BIN = process.env.PYTHON_BIN || (process.platform === "win32" ? "python" : "python3");
 const REQUEST_TIMEOUT_MS = Number(process.env.PREDICTION_TIMEOUT_MS) || 20_000;
+
+/**
+ * Resolves the interpreter once: PYTHON_BIN wins; on Windows prefer `py -3.13` when the
+ * launcher has it (Python 3.14 can be blocked by Smart App Control); otherwise python/python3.
+ */
+function resolvePython(): { command: string; prefixArgs: string[] } {
+  if (process.env.PYTHON_BIN) return { command: process.env.PYTHON_BIN, prefixArgs: [] };
+  if (process.platform === "win32") {
+    if (spawnSync("py", ["-3.13", "--version"]).status === 0) return { command: "py", prefixArgs: ["-3.13"] };
+    return { command: "python", prefixArgs: [] };
+  }
+  return { command: "python3", prefixArgs: [] };
+}
+
+const PYTHON = resolvePython();
+const PYTHON_BIN = [PYTHON.command, ...PYTHON.prefixArgs].join(" ");
 
 type Pending = { resolve: (value: unknown) => void; reject: (error: Error) => void; timer: NodeJS.Timeout };
 
@@ -23,7 +38,7 @@ export class PythonWorker {
   constructor(private readonly scriptName: string) {}
 
   private start() {
-    const child = spawn(PYTHON_BIN, [path.join(projectRoot, "ml", this.scriptName), "--serve"], {
+    const child = spawn(PYTHON.command, [...PYTHON.prefixArgs, path.join(projectRoot, "ml", this.scriptName), "--serve"], {
       cwd: path.join(projectRoot, "ml"),
       env: { ...process.env, PYTHONIOENCODING: "utf-8" },
     });

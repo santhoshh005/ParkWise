@@ -74,7 +74,7 @@ npm start
 |---|---|---|
 | `DATABASE_URL` | SQLite file used by Prisma | `file:./parkwise.db` |
 | `PORT` | HTTP port | `4000` |
-| `PYTHON_BIN` | Python interpreter for predictions | `python` (Windows) / `python3` |
+| `PYTHON_BIN` | Python interpreter for predictions | `py -3.13` if available, else `python` (Windows); `python3` elsewhere |
 | `CORS_ORIGIN` | Comma separated origins allowed cross origin | same origin only |
 | `PREDICTION_TIMEOUT_MS` | Per request prediction timeout | `20000` |
 
