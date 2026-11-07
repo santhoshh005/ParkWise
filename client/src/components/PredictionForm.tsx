@@ -76,8 +76,9 @@ export default function PredictionForm({ onSubmit, loading }: Props) {
             <button
               key={opt.value}
               type="button"
+              aria-pressed={weather === opt.value}
               onClick={() => setWeather(opt.value)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
                 weather === opt.value
                   ? "bg-white text-emerald-700 shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
@@ -90,16 +91,17 @@ export default function PredictionForm({ onSubmit, loading }: Props) {
       </fieldset>
 
       {/* Event toggle */}
-      <label className="mt-4 flex items-center gap-3">
-        <span className="text-sm font-medium text-slate-700">
+      <div className="mt-4 flex items-center gap-3">
+        <span id="event-label" className="text-sm font-medium text-slate-700">
           Event nearby?
         </span>
         <button
           type="button"
           role="switch"
           aria-checked={hasEvent}
+          aria-labelledby="event-label"
           onClick={() => setHasEvent(!hasEvent)}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
             hasEvent ? "bg-emerald-500" : "bg-slate-300"
           }`}
         >
@@ -109,10 +111,13 @@ export default function PredictionForm({ onSubmit, loading }: Props) {
             }`}
           />
         </button>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-500" aria-hidden="true">
           {hasEvent ? "Yes" : "No"}
         </span>
-      </label>
+      </div>
+      <p className="mt-2 text-xs text-slate-500">
+        Predictions are most reliable between 7:00 and 22:00, the hours covered by historical data.
+      </p>
 
       {/* Submit */}
       <button

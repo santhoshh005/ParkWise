@@ -7,3 +7,4 @@ ml/*.joblib
 *.tsbuildinfo
 __pycache__/
 *.pdf
+.claude/

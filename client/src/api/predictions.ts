@@ -1,7 +1,7 @@
 import type { PredictionRequest, PredictionResponse } from "../types";
 
 const API_BASE = "/api";         // Vite proxy rewrites to http://localhost:4000
-const TIMEOUT_MS = 15_000;       // Python bridge + model load can be slow on first call
+const TIMEOUT_MS = 30_000;       // Python bridge + model load can be slow on first call
 
 class PredictionError extends Error {
   constructor(

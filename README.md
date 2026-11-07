@@ -1,87 +1,158 @@
 # ParkWise
 
-> Predict. Compare. Park. Smart parking availability predictions for Koramangala, before you arrive.
+> Predict. Compare. Park. Parking availability predictions for Koramangala, before you arrive.
 
-ParkWise is a full-stack web application that predicts parking spot availability using machine learning. It ranks nearby parking zones based on predicted availability, distance from the destination, and hourly price.
+ParkWise is a full stack web app that forecasts how full each parking zone in Koramangala will be at a chosen date and time, then ranks the zones by predicted free space, distance and price.
 
 ## Features
 
-- **Machine Learning Predictions**: Uses a Random Forest regression model to predict occupancy based on time of day, day of week, weather, and nearby events.
-- **Smart Ranking Engine**: Automatically suggests the best parking spot using a weighted scoring algorithm (55% availability, 30% distance, 15% price).
-- **Interactive Map**: Real-time visual layout using Leaflet and OpenStreetMap, with color-coded markers scaled by parking lot capacity.
-- **Explainable AI**: Provides plain-English explanations for why a spot was recommended, along with model telemetry (MAE, R²).
-- **Dynamic Pricing (Stretch Feature)**: Suggests dynamic surge or discount pricing based on predicted availability limits.
+- **Occupancy forecasting**: a gradient boosting model (selected automatically against a random forest) predicts occupancy from hour, day of week, weekend flag, weather, nearby events and each zone's historical pattern.
+- **Prediction ranges**: every prediction comes with an 80% range calibrated on held out data (split conformal), so you can see how certain the forecast is.
+- **Honest evaluation**: the model is scored on the most recent 14 days it never saw during training and compared against a naive "historical average for that hour" baseline.
+- **Ranking engine**: weighted score of availability (55%), distance from the area centre (30%) and the price you will actually pay (15%).
+- **Dynamic pricing**: discount when a lot is mostly empty, surge when it is nearly full.
+- **Interactive map**: Leaflet + OpenStreetMap markers coloured by availability and sized by capacity.
+- **Reliability warnings**: requests outside the hours covered by historical data are flagged as extrapolations.
 
-## Assessment Criteria Checklist
-- [x] **Historical/Simulated Data**: Uses 84 days of simulated hourly data across 8 zones to train the model.
-- [x] **Prediction Model**: Features include time, day, weather, and events.
-- [x] **Map-Based UI**: Interactive Leaflet map with dynamic green/yellow/red availability indicators.
-- [x] **Stretch Goal**: Dynamic pricing suggestion implemented in the recommendation engine.
-- [x] **Tests Addressed**: Data handling (SQLite+Prisma), ML (Random Forest), UI (React+Tailwind).
+## Model accuracy
 
-## Understanding the Dashboard
+Measured on a chronological holdout (last 14 of 120 simulated days, 1,792 records):
 
-When you receive a prediction, the dashboard presents a **"Best Match"** card alongside an interactive map. 
+| Metric | ParkWise model | Historical average baseline |
+|---|---|---|
+| MAE | **4.97 pts** | 5.42 pts |
+| RMSE | 6.21 pts | n/a |
+| R² | 0.885 | 0.864 |
+| 80% range | ±8.2 pts, 80.1% observed coverage | n/a |
 
-### The Recommendation Stats
-Each parking spot displays three key statistics that our recommendation engine uses to rank them:
-1. **Predicted Free Spaces (e.g., `~117 of 220 free`)**: The model predicts the percentage of availability. We multiply this by the lot's total physical capacity to estimate exactly how many empty parking spots remain.
-2. **Distance (e.g., `0 km from centre`)**: The system calculates the geographic distance from the parking spot to the destination. *(Note: For this project, the destination is hardcoded to the centre of Koramangala).*
-3. **Suggested Price (e.g., `₹50 per hour`)**: This demonstrates our **Dynamic Pricing** feature. If a lot is critically full, surge pricing is applied. If a lot is highly empty, discount pricing is applied to attract drivers.
+The simulated data contains roughly 6 points of irreducible day to day noise, so an MAE near 4.7 is the practical floor. Exact numbers are printed by `npm run train:model` and shown in the app under "How accurate is this prediction?".
 
-### The Map Markers
-The interactive Leaflet map uses color-coded markers to give a quick visual overview of the area:
-- **Green**: High availability (>55%).
-- **Yellow / Amber**: Medium availability (40% - 55%).
-- **Red**: Low availability (<40%).
-- **Thick Black Border**: Indicates the currently selected parking spot.
+## Tech stack
 
-## Tech Stack
-
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, React-Leaflet
-- **Backend**: Node.js, Express, TypeScript, Prisma ORM, SQLite
-- **Machine Learning**: Python, Scikit-Learn, Pandas, Joblib
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, React Leaflet
+- **Backend**: Node.js, Express 5, TypeScript, Prisma ORM, SQLite
+- **Machine learning**: Python, scikit-learn, pandas, joblib
 
 ## Prerequisites
 
-- Node.js (v20+)
-- Python (3.10+)
-- npm or yarn
+- Node.js 20+
+- Python 3.10+ with `pip`
 
-## Getting Started
+## Getting started
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   npm run dev:client # (installs client deps)
-   npm run dev:server # (installs server deps)
-   pip install -r ml/requirements.txt
-   ```
+```bash
+npm install
+pip install -r ml/requirements.txt
+cp .env.example .env
+```
 
-2. **Database Setup**
-   The project uses a local SQLite database. Seed it with the simulated Koramangala parking data:
-   ```bash
-   npm run db:generate
-   npm run db:push
-   npm run db:seed
-   ```
+Create and seed the database (8 zones, 120 days of hourly history), then train the model:
 
-3. **Train the Model**
-   Train the Random Forest model on the seeded historical data. This creates the `parking_model.joblib` artifact:
-   ```bash
-   npm run train:model
-   ```
+```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run train:model
+```
 
-4. **Run the Application**
-   Start both the backend and frontend concurrently:
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:5173` in your browser.
+Run the API and the client together, then open `http://localhost:5173`:
 
-## Project Structure
+```bash
+npm run dev
+```
 
-- `/client` - React frontend
-- `/server` - Express backend and API endpoints
-- `/ml` - Python training scripts and model artifacts
-- `/prisma` - Database schema and seeding scripts
+## Production
+
+```bash
+npm run build
+npm start
+```
+
+`npm start` serves the API and the built client from one origin on `PORT` (default 4000). Configuration lives in `.env` (see `.env.example`):
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `DATABASE_URL` | SQLite file used by Prisma | `file:./parkwise.db` |
+| `PORT` | HTTP port | `4000` |
+| `PYTHON_BIN` | Python interpreter for predictions | `python` (Windows) / `python3` |
+| `CORS_ORIGIN` | Comma separated origins allowed cross origin | same origin only |
+| `PREDICTION_TIMEOUT_MS` | Per request prediction timeout | `20000` |
+
+## Checks
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+`npm test` runs the server unit tests (validation and ranking) and the Python unit tests (feature pipeline, timestamp parsing, prediction ranges).
+
+## How it works
+
+```mermaid
+graph TD
+    Client[React client] -->|POST /api/predictions| API[Express API]
+    API -->|zones, cached 5 min| DB[(SQLite via Prisma)]
+    API -->|JSON lines over stdin/stdout| Worker[Persistent Python worker: predict.py --serve]
+    Worker -->|loads once| Model[parking_model.joblib]
+    API -->|ranking + pricing| Client
+```
+
+1. The client sends the date, time, weather and event flag.
+2. The API validates the request (real calendar dates, 24 hour times) and loads the zones.
+3. A long lived Python worker, which keeps the model in memory, returns occupancy and a likely range for each zone. It restarts automatically if it crashes or times out.
+4. The API converts occupancy to availability, applies dynamic pricing, ranks the zones and explains the top pick.
+
+The model only predicts occupancy; ranking and pricing live in `server/src/services/recommendation.ts`, so business rules can change without retraining.
+
+### Simulated data
+
+`prisma/seed.ts` generates reproducible history with a seeded random generator. Each zone has its own demand profile (mall, curbside, office, college, market). Weather and events are drawn per day, events affect zones near the centre most, and every zone carries correlated day to day variation plus hourly noise. Timestamps store local wall clock time encoded as UTC.
+
+## API reference
+
+### `GET /api/health`
+Returns `{ "status": "ok" }`.
+
+### `GET /api/zones`
+Returns all Koramangala parking zones: `id`, `name`, `area`, `latitude`, `longitude`, `totalSpaces`, `hourlyPrice`.
+
+### `POST /api/predictions`
+
+Request:
+
+```json
+{ "date": "2026-11-14", "time": "18:00", "weather": "rainy", "hasEvent": true }
+```
+
+`weather` is one of `clear`, `cloudy`, `rainy`. Invalid input returns `400` with a `message`.
+
+Response (abridged):
+
+```json
+{
+  "request": { "area": "Koramangala", "date": "2026-11-14", "time": "18:00", "weather": "rainy", "hasEvent": true },
+  "recommended": {
+    "id": "kora-006", "name": "Jyoti Nivas College",
+    "occupancyPercent": 30.7, "availabilityPercent": 69.3,
+    "availabilityLow": 61.1, "availabilityHigh": 77.5,
+    "estimatedFreeSpaces": 69, "distanceKm": 0.53,
+    "status": "high", "hourlyPrice": 30, "suggestedHourlyPrice": 30,
+    "recommendationScore": 0.79
+  },
+  "explanation": "Recommended for its 69.3% predicted availability (~69 of 100 spaces free), ...",
+  "zones": ["...all zones ranked by recommendationScore..."],
+  "modelMetrics": { "mae": 4.97, "baselineMae": 5.42, "r2": 0.885, "intervalHalfWidth": 8.2, "modelName": "Gradient Boosting", "...": "..." },
+  "warnings": []
+}
+```
+
+Availability status: **high** at 60% or more, **medium** from 30% to 60%, **low** below 30%.
+
+## Project structure
+
+- `client/` React frontend
+- `server/` Express API, ranking engine, Python bridge and unit tests
+- `ml/` feature pipeline, training, prediction worker and unit tests
+- `prisma/` database schema and data simulation

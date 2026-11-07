@@ -56,7 +56,7 @@ export default function ParkingMap({
   const hasPredictions = zones !== null;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" aria-label="Map of parking zones" role="region">
       <MapContainer
         center={KORAMANGALA_CENTER}
         zoom={DEFAULT_ZOOM}
@@ -65,7 +65,7 @@ export default function ParkingMap({
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         <FlyTo zone={selectedZone} />
@@ -99,7 +99,7 @@ export default function ParkingMap({
                   {hasPredictions && (
                     <>
                       <p className="mt-1 text-xs text-slate-600">
-                        {zone.availabilityPercent}% available ·{" "}
+                        {zone.availabilityPercent}% available ({zone.availabilityLow} to {zone.availabilityHigh}%) ·{" "}
                         ~{zone.estimatedFreeSpaces} free
                       </p>
                       <p className="text-xs text-slate-600">
